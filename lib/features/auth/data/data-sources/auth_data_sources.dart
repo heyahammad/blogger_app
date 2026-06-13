@@ -1,8 +1,9 @@
+import 'package:blogger/core/error/app_exceptions.dart';
 import 'package:blogger/features/auth/data/models/user_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 abstract interface class AuthDataSources {
-  Session get currentUserSession;
+  Session? get currentUserSession;
 
   Future<UserModel> signInWithEmailAndPassword({
     required String email,
@@ -24,22 +25,39 @@ class AuthDataSourcesImpl implements AuthDataSources {
   AuthDataSourcesImpl({required this.supabaseClient});
 
   @override
-  // TODO: implement currentUserSession
-  Session get currentUserSession => throw UnimplementedError();
+  Session? get currentUserSession => supabaseClient.auth.currentSession;
 
   @override
-  Future<UserModel?> getCurrentUser() {
-    // TODO: implement getCurrentUser
-    throw UnimplementedError();
+  Future<UserModel?> getCurrentUser() async {
+    if (currentUserSession != null) {
+      final user = UserModel.fromMap(currentUserSession!.user.toJson());
+      return user;
+    } else {
+      return null;
+    }
   }
 
   @override
   Future<UserModel> signInWithEmailAndPassword({
     required String email,
     required String password,
-  }) {
-    // TODO: implement signInWithEmailAndPassword
-    throw UnimplementedError();
+  }) async {
+    final AuthResponse response = await supabaseClient.auth.signInWithPassword(
+      password: password,
+      email: email,
+    );
+
+    try {
+      if (response.user == null) {
+        throw AppExceptions(message: 'Failed to sign in user');
+      } else {
+        return UserModel.fromMap(response.user!.toJson());
+      }
+    } on AuthException catch (e) {
+      throw AppExceptions(message: 'Failed to sign in user: ${e.message}');
+    } catch (e) {
+      throw AppExceptions(message: 'Failed to sign in user $e');
+    }
   }
 
   @override
@@ -47,8 +65,23 @@ class AuthDataSourcesImpl implements AuthDataSources {
     required String name,
     required String email,
     required String password,
-  }) {
-    // TODO: implement signUpWithEmailAndPassword
-    throw UnimplementedError();
+  }) async {
+    try {
+      final AuthResponse response = await supabaseClient.auth.signUp(
+        password: password,
+        email: email,
+        data: {'name': name},
+      );
+
+      if (response.user == null) {
+        throw AppExceptions(message: 'Failed to sign up user');
+      } else {
+        return UserModel.fromMap(response.user!.toJson());
+      }
+    } on AuthException catch (e) {
+      throw AppExceptions(message: 'Failed to sign up user: ${e.message}');
+    } catch (e) {
+      throw AppExceptions(message: 'Failed to sign up user: $e');
+    }
   }
 }
