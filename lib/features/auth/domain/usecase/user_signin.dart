@@ -6,7 +6,7 @@ class UserSignin {
 
   UserSignin({required this.authRepository});
 
-  Future<AppUser> call({
+  Future<AppUser?> call({
     required String email,
     required String password,
   }) async {
@@ -14,6 +14,9 @@ class UserSignin {
       email: email,
       password: password,
     );
+    if (response == null) {
+      return null;
+    }
     return AppUser(id: response.id, name: response.name, email: response.email);
   }
 }
