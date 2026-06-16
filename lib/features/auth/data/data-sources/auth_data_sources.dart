@@ -5,12 +5,12 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 abstract interface class AuthDataSources {
   Session? get currentUserSession;
 
-  Future<UserModel> signInWithEmailAndPassword({
+  Future<UserModel?> signInWithEmailAndPassword({
     required String email,
     required String password,
   });
 
-  Future<UserModel> signUpWithEmailAndPassword({
+  Future<UserModel?> signUpWithEmailAndPassword({
     required String name,
     required String email,
     required String password,
@@ -38,7 +38,7 @@ class AuthDataSourcesImpl implements AuthDataSources {
   }
 
   @override
-  Future<UserModel> signInWithEmailAndPassword({
+  Future<UserModel?> signInWithEmailAndPassword({
     required String email,
     required String password,
   }) async {
@@ -61,7 +61,7 @@ class AuthDataSourcesImpl implements AuthDataSources {
   }
 
   @override
-  Future<UserModel> signUpWithEmailAndPassword({
+  Future<UserModel?> signUpWithEmailAndPassword({
     required String name,
     required String email,
     required String password,

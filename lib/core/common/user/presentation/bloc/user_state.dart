@@ -6,9 +6,11 @@ sealed class UserState {}
 final class UserInitial extends UserState {}
 
 final class UserAuthenticated extends UserState {
-  final User user;
+  final AppUser user;
 
   UserAuthenticated({required this.user});
 }
 
 final class UserUnauthenticated extends UserState {}
+
+final class UserLoading extends UserState {}

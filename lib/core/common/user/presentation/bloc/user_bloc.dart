@@ -1,4 +1,5 @@
-import 'package:blogger/features/user/presentation/domain/entities/user.dart';
+import 'package:blogger/core/common/user/domain/entities/user.dart';
+import 'package:blogger/features/auth/domain/usecase/current_user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -6,7 +7,8 @@ part 'user_event.dart';
 part 'user_state.dart';
 
 class UserBloc extends Bloc<UserEvent, UserState> {
-  UserBloc() : super(UserInitial()) {
+  CurrentUser currentUser;
+  UserBloc({required this.currentUser}) : super(UserInitial()) {
     on<UserCheckAuthentication>(
       (event, emit) => _onUSerCheckAuthentication(event: event, emit: emit),
     );
@@ -23,9 +25,11 @@ and if the user is not authenticated then the state is changed to UserUnauthenti
   void _onUSerCheckAuthentication({
     required UserCheckAuthentication event,
     required Emitter<UserState> emit,
-  }) {
-    if (event.user != null) {
-      emit(UserAuthenticated(user: event.user!));
+  }) async {
+    emit(UserLoading());
+    final getuser = await currentUser.call();
+    if (getuser != null) {
+      emit(UserAuthenticated(user: getuser));
     } else {
       emit(UserUnauthenticated());
     }
